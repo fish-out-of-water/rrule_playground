@@ -93,7 +93,7 @@ def testDaysOfWeek():
 	assert rule.contains(date(2018, 1, 22))
 	assert not rule.contains(date(2018, 1, 21))
 
-# testAll()
+testAll()
 
 daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]

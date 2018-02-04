@@ -1,5 +1,5 @@
 from datetime import date
-from date_formulas import getDay, getWeekOfMonth, daysInMonth
+from date_formulas import getDay, getWeekOfMonth, daysInMonth, getDayRaw
 
 class RRule:
 	MO = 0
@@ -59,13 +59,25 @@ class RRule:
 		self.setpos = None
 		return self
 
-	# Checks if a rule would contain a day
-	def contains(self, other):
+	def containsRaw(self, year, month, day):
 		# Check to make sure date is within the bounds of the rule
-		if other < self.dtstart:
+		if year < self.dtstart.year:
 			return False
-		elif self.until != None and self.until < other:
-			return False
+		else:
+			if month < self.dtstart.month:
+				return False
+			else:
+				if day < self.dtstart.day:
+					return False
+		if self.until != None:
+			if self.until.year < year:
+				return False
+			else:
+				if self.until.month < month:
+					return False
+				else:
+					if self.until.day < day:
+						return False
 		if self.byweekday == []:
 			days = [self.startDay]
 		else:
@@ -75,21 +87,26 @@ class RRule:
 			if self.byweekday == []:
 				return True
 			else:
-				return getDay(other) in days
+				return getDayRaw(day, month, year) in days
 		# Weekly Frequency
 		elif self.freq == self.WEEKLY:
-			return getDay(other) in days
+			return getDayRaw(day, month, year) in days
 		# Monthly Frequency
 		elif self.freq == self.MONTHLY:
 			# Only in use if using nth day of week of month
 			if self.setpos != None:
-				return getWeekOfMonth(other) == setpos and getDay(other) 
+				return getWeekOfMonth(year, month, day) == setpos and getDayRaw(day, month, year) 
 			else:
-				return self.dtstart.day == other.day
+				return self.dtstart.day == day
 		# Yearly Frequency
 		elif self.freq == self.YEARLY:
-			return other.day == self.dtstart.day and other.month == self.dtstart.month
-		raise ValueError("Could not find properly match rule")
+			return day == self.dtstart.day and month == self.dtstart.month
+		raise ValueError("Could not find properly match rule")		
+
+	# Checks if a rule would contain a day
+	def contains(self, other):
+		return self.containsRaw(other.year, other.month, other.day)
+
 
 	def occurencesInRange(self, start, end):
 		currentYear = start.year
@@ -100,8 +117,10 @@ class RRule:
 			currentDate = date(currentYear, currentMonth, currentDay)
 			if self.contains(currentDate):
 				occurences.append(currentDate)
+			# move to the next month
 			if daysInMonth(currentYear, currentMonth) == currentDay:
 				currentDay = 1
+				# move to the next year
 				if currentMonth == 12:
 					currentMonth = 1
 					currentYear += 1
