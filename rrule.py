@@ -59,7 +59,7 @@ class RRule:
 		self.setpos = None
 		return self
 
-	def containsRaw(self, year, month, day):
+	def contains(self, year, month, day):
 		# Check to make sure date is within the bounds of the rule
 		if year < self.dtstart.year:
 			return False
@@ -104,19 +104,18 @@ class RRule:
 		raise ValueError("Could not find properly match rule")		
 
 	# Checks if a rule would contain a day
-	def contains(self, other):
-		return self.containsRaw(other.year, other.month, other.day)
+	def containsDate(self, other):
+		return self.contains(other.year, other.month, other.day)
 
-
+	# Finds all occurences of the rule within a range
 	def occurencesInRange(self, start, end):
 		currentYear = start.year
 		currentMonth = start.month
 		currentDay = start.day
 		occurences = []
 		while currentYear != end.year or currentMonth != end.month or currentDay != end.day:
-			currentDate = date(currentYear, currentMonth, currentDay)
-			if self.contains(currentDate):
-				occurences.append(currentDate)
+			if self.contains(currentYear, currentMonth, currentDay):
+				occurences.append((currentYear, currentMonth, currentDay))
 			# move to the next month
 			if daysInMonth(currentYear, currentMonth) == currentDay:
 				currentDay = 1
@@ -129,3 +128,8 @@ class RRule:
 			else:
 				currentDay += 1
 		return occurences
+
+
+x = RRule(RRule.WEEKLY)
+x.setStartDate(date(2018, 1, 1)).setUntil(date(2018, 5, 31)).setByWeekDay(["MO", "WE", "FR"])
+print((x.occurencesInRange(date(2018, 1, 1), date(2050, 1, 1))))
