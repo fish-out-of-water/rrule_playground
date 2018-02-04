@@ -1,5 +1,5 @@
 from datetime import date
-from date_formulas import getDay, getWeekOfMonth
+from date_formulas import getDay, getWeekOfMonth, daysInMonth
 
 class RRule:
 	MO = 0
@@ -91,3 +91,22 @@ class RRule:
 			return other.day == self.dtstart.day and other.month == self.dtstart.month
 		raise ValueError("Could not find properly match rule")
 
+	def occurencesInRange(self, start, end):
+		currentYear = start.year
+		currentMonth = start.month
+		currentDay = start.day
+		occurences = []
+		while currentYear != end.year or currentMonth != end.month or currentDay != end.day:
+			currentDate = date(currentYear, currentMonth, currentDay)
+			if self.contains(currentDate):
+				occurences.append(currentDate)
+			if daysInMonth(currentYear, currentMonth) == currentDay:
+				currentDay = 1
+				if currentMonth == 12:
+					currentMonth = 1
+					currentYear += 1
+				else:
+					currentMonth += 1
+			else:
+				currentDay += 1
+		return occurences
