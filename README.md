@@ -17,3 +17,4 @@ The RRule in this implementation gives the user the ability to create RRules und
  - ```setUntil``` sets the last day of recurrance rule inclusively. Must be a python date object.
  - ```setStartDate``` sets the start date of the recurrence rule. Must be a python date object.
  - ```contains``` determines whether the date passed into the method is part of the recurrance rule. Must pass in a python date object.
+ - ```occurencesInRange(start, end)``` returns a list of python date objects that are contained within that range by the recurrence rule.
